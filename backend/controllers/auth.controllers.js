@@ -88,5 +88,11 @@ export const loginHandler = async (req, res) => {
 };
 
 export const logoutHandler = (req, res) => {
-
+  try {
+    res.cookie("jwt", "", { maxAge: 1 });
+    res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    logger.error(`Error in logout handler: ${error.message}`);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
