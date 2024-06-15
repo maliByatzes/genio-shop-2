@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import { generateToken } from "../utils/generateTokens.js";
 import logger from "../utils/logger.js";
 import * as argon2 from "argon2";
 
@@ -62,8 +63,28 @@ export const registerHandler = async (req, res) => {
   }
 };
 
-export const loginHandler = (req, res) => {
+export const loginHandler = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
+    const user = await User.findOne({ email });
+    const isMatch = await argon2.verify(user.password, password);
+
+    if (!user || !isMatch) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    await generateToken(user._id, res);
+
+    res.status(200).json({
+      _id: user._id,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+    });
+  } catch (error) {
+    logger.error(`Error in login handler: ${error.message}`);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
 
 export const logoutHandler = (req, res) => {
