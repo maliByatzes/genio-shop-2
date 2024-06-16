@@ -10,32 +10,27 @@ export const registerHandler = async (req, res) => {
     let regex = new RegExp('[a-z0-9]+@[a-z]+\.[a-z]{2,3}');
 
     if (!regex.test(email)) {
-      res.status(400).json({ error: "Invalid email" });
-      return;
+      return res.status(400).json({ error: "Invalid email" });
     }
 
     if (password !== confirmPassword) {
-      res.status(400).json({ error: "Passwords do not match" });
-      return;
+      return res.status(400).json({ error: "Passwords do not match" });
     }
 
     if (password.length < 6) {
-      res.status(400).json({ error: "Password must be at least 6 characters" });
-      return;
+      return res.status(400).json({ error: "Password must be at least 6 characters" });
     }
 
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      res.status(400).json({ error: "Email already exists" });
-      return;
+      return res.status(400).json({ error: "Email already exists" });
     }
 
     const existingPhoneNumber = await User.findOne({ phoneNumber });
 
     if (existingPhoneNumber) {
-      res.status(400).json({ error: "Phone number already exists" });
-      return;
+      return res.status(400).json({ error: "Phone number already exists" });
     }
 
     const hashedPassword = await argon2.hash(password);
@@ -93,6 +88,62 @@ export const logoutHandler = (req, res) => {
     res.status(200).json({ message: "Logout successful" });
   } catch (error) {
     logger.error(`Error in logout handler: ${error.message}`);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const registerAdminHandler = async (req, res) => {
+  try {
+    const { email, phoneNumber, password, confirmPassword } = req.body;
+
+    let regex = new RegExp('[a-z0-9]+@[a-z]+\.[a-z]{2,3}');
+
+    if (!regex.test(email)) {
+      return res.status(400).json({ error: "Invalid email" });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({ error: "Passwords do not match" });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: "Password must be at least 6 characters" });
+    }
+
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return res.status(400).json({ error: "Email already exists" });
+    }
+
+    const existingPhoneNumber = await User.findOne({ phoneNumber });
+
+    if (existingPhoneNumber) {
+      return res.status(400).json({ error: "Phone number already exists" });
+    }
+
+    const hashedPassword = await argon2.hash(password);
+
+    const newAdmin = new User({
+      email,
+      phoneNumber,
+      password: hashedPassword,
+      role: "admin",
+    });
+
+    if (newAdmin) {
+      await newAdmin.save();
+
+      return res.status(201).json({
+        _id: newAdmin._id,
+        email: newAdmin.email,
+        phoneNumber: newAdmin.phoneNumber,
+      });
+    } else {
+      return res.status(400).json({ error: "Invalid user data" });
+    }
+  } catch (error) {
+    logger.error(`Error in register admin handler: ${error.message}`);
     res.status(500).json({ error: "Internal server error" });
   }
 };
