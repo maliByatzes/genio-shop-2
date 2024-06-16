@@ -6,6 +6,7 @@ import logger from './utils/logger.js';
 import connectMongoDB from './db/connectMongoDB.js';
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
+import addressRoutes from './routes/address.routes.js';
 
 dotenv.config();
 const app = express();
@@ -21,6 +22,7 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/addresses', addressRoutes);
 
 app.listen(PORT, () => {
   logger.info(`Server started on port ${PORT}`);
