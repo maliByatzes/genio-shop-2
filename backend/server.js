@@ -13,6 +13,7 @@ import addressRoutes from './routes/address.routes.js';
 import productCategoryRoutes from './routes/product_category.routes.js';
 import productRoutes from './routes/product.routes.js';
 import promotionRoutes from './routes/promotion.routes.js';
+import orderRoutes from './routes/order.routes.js';
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.use('/api/v1/addresses', addressRoutes);
 app.use('/api/v1/product-categories', productCategoryRoutes);
 app.use('/api/v1/products', productRoutes);
 app.use('/api/v1/promotions', promotionRoutes);
+app.use('/api/v1/orders', orderRoutes);
 
 app.listen(PORT, () => {
   logger.info(`Server started on port ${PORT}`);
